@@ -7,6 +7,8 @@ var CLEAR_LINE = new Buffer('1b5b304b', 'hex').toString()
 module.exports = function() {
   var prev
   return through(function(data, enc, cb) {
+    var prefix
+
     if (prev) {
       var reset = ''
       var newlines = 0
@@ -19,10 +21,10 @@ module.exports = function() {
         reset += MOVE_LEFT + CLEAR_LINE + (i < newlines ? MOVE_UP : '')
       }
 
-      this.push(reset)
+      prefix = new Buffer(reset)
     }
 
     prev = data
-    cb(null, data)
+    cb(null, prefix ? Buffer.concat([prefix, data]) : data)
   })
 }
